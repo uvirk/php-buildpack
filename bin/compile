@@ -35,6 +35,26 @@ shopt -s dotglob
 BUILD_DIR=$1
 CACHE_DIR=$2/php
 mkdir -p "$CACHE_DIR"
+
+export buildpack=$(dirname $(dirname $0))
+install_python() {
+    cache=$(cd "$CACHE_DIR/" && pwd)
+    export PYTHONHOME=$cache/python
+    export PATH=$PYTHONHOME/bin:$PATH
+
+    if test -d $PYTHONHOME
+    then
+        echo "-----> Python 2.7.6 already installed"
+    else
+        echo -n "-----> Installing Python 2.7.6..."
+        $buildpack/builds/runtimes/python-2.7.6 $PYTHONHOME > /dev/null 2>&1
+        mv $PYTHONHOME/bin/python2.7 $PYTHONHOME/bin/python
+        echo " done"
+    fi
+}
+
+install_python
+
 ENV_DIR=${3:-} # Anvil has none
 BP_DIR=$(cd $(dirname $0); cd ..; pwd)
 
