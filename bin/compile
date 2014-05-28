@@ -290,6 +290,14 @@ fi
 # tail to get rid of outdated version warnings (Composer sends those to STDOUT instead of STDERR)
 composer --version 2> /dev/null | tail -n 1 | indent
 
+curl_exit_code=$(curl --connect-timeout 5 https://api.github.com &> /dev/null; echo $?)
+online=false
+if [[ $curl_exit_code -eq 0 ]]
+then
+    online=true
+fi
+
+if [[ $online == "true" ]]; then
 # handle custom oauth keys
 COMPOSER_GITHUB_OAUTH_TOKEN=${COMPOSER_GITHUB_OAUTH_TOKEN:-}
 if [[ -n "$COMPOSER_GITHUB_OAUTH_TOKEN" ]]; then
@@ -311,6 +319,7 @@ http://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens"
 fi
 # no need for the token to stay around in the env
 unset COMPOSER_GITHUB_OAUTH_TOKEN
+fi
 
 # install dependencies
 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction | indent
