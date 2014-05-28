@@ -2,6 +2,16 @@
 
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
+can_connect() {
+    curl_exit_code=$(curl --connect-timeout 5 $1 &> /dev/null; echo $?)
+    if [[ $curl_exit_code -eq 0 ]]
+    then
+        return 0
+    fi
+
+    return 1
+}
+
 install_ext () {
     local ext=$1
     local reason=${2:-}
@@ -284,20 +294,17 @@ else
         $engine `which composer` "$@"
     }
     export -f composer
-    composer self-update --no-interaction --quiet # TODO: specify a version once composer has stable releases
+
+    if $(can_connect http://getcomposer.org); then
+        composer self-update --no-interaction --quiet || true # TODO: specify a version once composer has stable releases
+    fi
 fi
 # echo composer version for info purposes
 # tail to get rid of outdated version warnings (Composer sends those to STDOUT instead of STDERR)
 composer --version 2> /dev/null | tail -n 1 | indent
 
-curl_exit_code=$(curl --connect-timeout 5 https://api.github.com &> /dev/null; echo $?)
-online=false
-if [[ $curl_exit_code -eq 0 ]]
-then
-    online=true
-fi
 
-if [[ $online == "true" ]]; then
+if $(can_connect https://api.github.com); then
 # handle custom oauth keys
 COMPOSER_GITHUB_OAUTH_TOKEN=${COMPOSER_GITHUB_OAUTH_TOKEN:-}
 if [[ -n "$COMPOSER_GITHUB_OAUTH_TOKEN" ]]; then
