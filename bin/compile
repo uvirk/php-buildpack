@@ -91,10 +91,10 @@ Using index.php to declare PHP applications is considered legacy
 functionality and may lead to unexpected behavior.'
 else
     notice 'Your composer.json is completely empty.
-Consider putting at least "{}" in there to make it valid JSON.'
+Consider putting at least "{\"repositories\":[{\"packagist\":false}]}" in there to make it valid JSON.'
 fi
 if [[ $json_empty == true ]]; then
-    echo "{}" > composer.json
+    echo "{\"repositories\":[{\"packagist\":false}]}" > composer.json
 fi
 
 mkdir -p .heroku/php
