@@ -37,6 +37,7 @@ CACHE_DIR=$2/php
 mkdir -p "$CACHE_DIR"
 
 export buildpack=$(dirname $(dirname $0))
+buildpack_absolute="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 install_python() {
     cache=$(cd "$CACHE_DIR/" && pwd)
     export PYTHONHOME=$cache/python
@@ -162,7 +163,16 @@ if [[ "${PHP_VERSION:-}" || ! "${HHVM_VERSION:-}" ]]; then
     PHP_VERSION=${PHP_VERSION:-${PHP_VERSIONS_ARR[0]}}
     PHP_DIST_URL="$S3_URL/php-$PHP_VERSION.tar.gz"
     echo "- PHP $PHP_VERSION" | indent
-    curl --silent --location "$PHP_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+    if test -d $buildpack_absolute/dependencies
+    then
+        echo -n "-----> Installing PHP from buildpack..."
+        tar xzf $buildpack_absolute/dependencies/php-$PHP_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
+        echo 'done'
+    else
+        echo -n "-----> Installing PHP from $PHP_DIST_URL..."
+        curl --silent --location "$PHP_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+        echo 'done'
+    fi
     PHP_EXT_DIR=$(php-config --extension-dir)
     # update config files
     mkdir -p $BUILD_DIR/.heroku/php/etc/php
@@ -187,7 +197,18 @@ fi
 APACHE_VERSION="2.4.9"
 APACHE_DIST_URL="$S3_URL/apache-$APACHE_VERSION.tar.gz"
 echo "- Apache $APACHE_VERSION" | indent
-curl --silent --location "$APACHE_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+
+if test -d $buildpack_absolute/dependencies
+then
+    echo -n "-----> Installing Apache from buildpack..."
+    tar xzf $buildpack_absolute/dependencies/apache-$APACHE_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
+    echo 'done'
+else
+    echo -n "-----> Installing Apache from $APACHE_DIST_URL..."
+    curl --silent --location "$APACHE_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+    echo 'done'
+fi
+
 # Apache; copy in our config
 cp $BP_DIR/conf/apache2/httpd.conf.default $BUILD_DIR/.heroku/php/etc/apache2/httpd.conf
 # remember the version for future upgrade handling
@@ -196,7 +217,18 @@ echo $APACHE_VERSION > $CACHE_DIR/apache2_version
 NGINX_VERSION="1.4.6"
 NGINX_DIST_URL="$S3_URL/nginx-$NGINX_VERSION.tar.gz"
 echo "- Nginx $NGINX_VERSION" | indent
-curl --silent --location "$NGINX_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+
+if test -d $buildpack_absolute/dependencies
+then
+    echo -n "-----> Installing Nginx from buildpack..."
+    tar xzf $buildpack_absolute/dependencies/nginx-$NGINX_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
+    echo 'done'
+else
+    echo -n "-----> Installing Nginx from $NGINX_DIST_URL..."
+    curl --silent --location "$NGINX_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+    echo 'done'
+fi
+
 # nginx; copy in our config
 cp $BP_DIR/conf/nginx/nginx.conf.default $BUILD_DIR/.heroku/php/etc/nginx/nginx.conf
 # remember the version for future upgrade handling
@@ -237,7 +269,17 @@ if [[ -f "composer.phar" ]]; then
     export -f composer
     notice_inline "Found a composer.phar in root directory, will use it for install."
 else
-    curl --silent --location "$S3_URL/composer.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
+    if test -d $buildpack_absolute/dependencies
+    then
+        echo -n "-----> Installing Composer from buildpack..."
+        tar xzf $buildpack_absolute/dependencies/composer.tar.gz -C $BUILD_DIR/.heroku/php
+        echo 'done'
+    else
+        echo -n "-----> Installing Composer from $S3_URL/composer.tar.gz..."
+        curl --silent --location "$S3_URL/composer.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
+        echo 'done'
+    fi
+
     composer() {
         $engine `which composer` "$@"
     }
