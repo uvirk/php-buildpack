@@ -200,7 +200,15 @@ fi
 if [[ "${HHVM_VERSION:-}" ]]; then
     HHVM_DIST_URL="$S3_URL/hhvm-$HHVM_VERSION.tar.gz"
     echo "- HHVM $HHVM_VERSION" | indent
-    curl --silent --location "$HHVM_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+
+    if test -d $buildpack_absolute/dependencies
+    then
+        echo -n "-----> Installing HHVM from buildpack..."
+        tar xzf $buildpack_absolute/dependencies/hhvm-$HHVM_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
+        echo 'done'
+    else
+        curl --silent --location "$HHVM_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
+    fi
     echo $HHVM_VERSION > $CACHE_DIR/hhvm_version
     # make HHVM accessible
     export PATH=$PATH:/app/.heroku/php/usr/bin

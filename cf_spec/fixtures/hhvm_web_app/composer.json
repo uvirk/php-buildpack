@@ -1,5 +1,10 @@
 {
     "require": {
         "hhvm": "3.0.1"
-    }
+    },
+    "repositories": [
+        {
+            "packagist": false
+        }
+    ]
 }

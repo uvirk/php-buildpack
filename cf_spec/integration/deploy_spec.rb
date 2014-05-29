@@ -21,9 +21,21 @@ describe 'CF PHP Buildpack' do
 
       context 'an app with vendored app dependencies' do
         it 'deploys' do
-          Machete.deploy_app("app_with_local_dependencies", :php) do |app|
+          Machete.deploy_app("app_with_local_dependencies") do |app|
             expect(app).to be_staged
             expect(app.homepage_html).to include('App with dependencies running')
+          end
+        end
+
+        it 'deploys a HHVM app' do
+          Machete.deploy_app("hhvm_web_app") do |app|
+            expect(app).to be_staged
+
+            logs = app.logs
+
+            expect(logs).to include('Detected request for HHVM 3.0.1')
+            expect(logs).to include('- HHVM 3.0.1')
+            expect(app.homepage_html).to include('App with HHVM running')
           end
         end
       end
