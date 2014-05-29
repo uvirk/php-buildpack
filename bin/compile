@@ -3,7 +3,7 @@
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
 can_connect() {
-    curl_exit_code=$(curl --connect-timeout 5 $1 &> /dev/null; echo $?)
+    curl_exit_code=$(`which curl` --connect-timeout 5 $1 &> /dev/null; echo $?)
     if [[ $curl_exit_code -eq 0 ]]
     then
         return 0
@@ -19,13 +19,8 @@ install_ext () {
     local ext_dir=$(basename $(php-config --extension-dir))
     if [[ -f "$ext_ini" ]]; then
         if [[ ! -f "$PHP_EXT_DIR/$ext.so" ]]; then
-            if test -d $buildpack_absolute/dependencies; then
-                tar xzf $buildpack_absolute/dependencies/${ext}.tar.gz -C $BUILD_DIR/.heroku/php
-                echo "- ${ext} (${reason}; from dependencies, using 'ext-${ext}.ini')" | indent
-            else
-                curl --silent --location "${S3_URL}/extensions/${ext_dir}/${ext}.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
-                echo "- ${ext} (${reason}; downloaded, using 'ext-${ext}.ini')" | indent
-            fi
+            curl --silent --location "${S3_URL}/extensions/${ext_dir}/${ext}.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
+            echo "- ${ext} (${reason}; downloaded, using 'ext-${ext}.ini')" | indent
         else
             echo "- ${ext} (${reason}; bundled, using 'ext-${ext}.ini')" | indent
         fi
@@ -76,6 +71,12 @@ BP_DIR=$(cd $(dirname $0); cd ..; pwd)
 
 # convenience functions
 source $BP_DIR/bin/common.sh
+
+if test -d $buildpack_absolute/dependencies
+then
+    notice_inline 'Use locally cached dependencies where possible'
+    source $BP_DIR/bin/cf_overrides.sh
+fi
 
 export_env_dir "$ENV_DIR" "" '^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LD_LIBRARY_PATH)$'
 
@@ -178,16 +179,7 @@ if [[ "${PHP_VERSION:-}" || ! "${HHVM_VERSION:-}" ]]; then
     PHP_VERSION=${PHP_VERSION:-${PHP_VERSIONS_ARR[0]}}
     PHP_DIST_URL="$S3_URL/php-$PHP_VERSION.tar.gz"
     echo "- PHP $PHP_VERSION" | indent
-    if test -d $buildpack_absolute/dependencies
-    then
-        echo -n "-----> Installing PHP from buildpack..."
-        tar xzf $buildpack_absolute/dependencies/php-$PHP_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
-        echo 'done'
-    else
-        echo -n "-----> Installing PHP from $PHP_DIST_URL..."
-        curl --silent --location "$PHP_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
-        echo 'done'
-    fi
+    curl --silent --location "$PHP_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
     PHP_EXT_DIR=$(php-config --extension-dir)
     # update config files
     mkdir -p $BUILD_DIR/.heroku/php/etc/php
@@ -200,15 +192,7 @@ fi
 if [[ "${HHVM_VERSION:-}" ]]; then
     HHVM_DIST_URL="$S3_URL/hhvm-$HHVM_VERSION.tar.gz"
     echo "- HHVM $HHVM_VERSION" | indent
-
-    if test -d $buildpack_absolute/dependencies
-    then
-        echo -n "-----> Installing HHVM from buildpack..."
-        tar xzf $buildpack_absolute/dependencies/hhvm-$HHVM_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
-        echo 'done'
-    else
-        curl --silent --location "$HHVM_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
-    fi
+    curl --silent --location "$HHVM_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
     echo $HHVM_VERSION > $CACHE_DIR/hhvm_version
     # make HHVM accessible
     export PATH=$PATH:/app/.heroku/php/usr/bin
@@ -220,18 +204,7 @@ fi
 APACHE_VERSION="2.4.9"
 APACHE_DIST_URL="$S3_URL/apache-$APACHE_VERSION.tar.gz"
 echo "- Apache $APACHE_VERSION" | indent
-
-if test -d $buildpack_absolute/dependencies
-then
-    echo -n "-----> Installing Apache from buildpack..."
-    tar xzf $buildpack_absolute/dependencies/apache-$APACHE_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
-    echo 'done'
-else
-    echo -n "-----> Installing Apache from $APACHE_DIST_URL..."
-    curl --silent --location "$APACHE_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
-    echo 'done'
-fi
-
+curl --silent --location "$APACHE_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
 # Apache; copy in our config
 cp $BP_DIR/conf/apache2/httpd.conf.default $BUILD_DIR/.heroku/php/etc/apache2/httpd.conf
 # remember the version for future upgrade handling
@@ -240,18 +213,7 @@ echo $APACHE_VERSION > $CACHE_DIR/apache2_version
 NGINX_VERSION="1.4.6"
 NGINX_DIST_URL="$S3_URL/nginx-$NGINX_VERSION.tar.gz"
 echo "- Nginx $NGINX_VERSION" | indent
-
-if test -d $buildpack_absolute/dependencies
-then
-    echo -n "-----> Installing Nginx from buildpack..."
-    tar xzf $buildpack_absolute/dependencies/nginx-$NGINX_VERSION.tar.gz -C $BUILD_DIR/.heroku/php
-    echo 'done'
-else
-    echo -n "-----> Installing Nginx from $NGINX_DIST_URL..."
-    curl --silent --location "$NGINX_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
-    echo 'done'
-fi
-
+curl --silent --location "$NGINX_DIST_URL" | tar xz -C $BUILD_DIR/.heroku/php
 # nginx; copy in our config
 cp $BP_DIR/conf/nginx/nginx.conf.default $BUILD_DIR/.heroku/php/etc/nginx/nginx.conf
 # remember the version for future upgrade handling
@@ -292,17 +254,7 @@ if [[ -f "composer.phar" ]]; then
     export -f composer
     notice_inline "Found a composer.phar in root directory, will use it for install."
 else
-    if test -d $buildpack_absolute/dependencies
-    then
-        echo -n "-----> Installing Composer from buildpack..."
-        tar xzf $buildpack_absolute/dependencies/composer.tar.gz -C $BUILD_DIR/.heroku/php
-        echo 'done'
-    else
-        echo -n "-----> Installing Composer from $S3_URL/composer.tar.gz..."
-        curl --silent --location "$S3_URL/composer.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
-        echo 'done'
-    fi
-
+    curl --silent --location "$S3_URL/composer.tar.gz" | tar xz -C $BUILD_DIR/.heroku/php
     composer() {
         $engine `which composer` "$@"
     }
@@ -342,7 +294,7 @@ unset COMPOSER_GITHUB_OAUTH_TOKEN
 fi
 
 # install dependencies
-composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction | indent
+composer install --no-dev --prefer-source --optimize-autoloader --no-interaction | indent
 
 status "Building runtime environment..."
 
