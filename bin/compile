@@ -71,12 +71,7 @@ BP_DIR=$(cd $(dirname $0); cd ..; pwd)
 
 # convenience functions
 source $BP_DIR/bin/common.sh
-
-if test -d $buildpack_absolute/dependencies
-then
-    notice_inline 'Use locally cached dependencies where possible'
-    source $BP_DIR/bin/cf_overrides.sh
-fi
+source $BP_DIR/bin/cf_common.sh
 
 export_env_dir "$ENV_DIR" "" '^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LD_LIBRARY_PATH)$'
 
