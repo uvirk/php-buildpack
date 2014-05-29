@@ -9,7 +9,14 @@ class BuildpackPackager < BasePackager
       'https://lang-php.s3.amazonaws.com/dist-beta/hhvm-3.0.1.tar.gz',
       'https://lang-php.s3.amazonaws.com/dist-beta/apache-2.4.9.tar.gz',
       'https://lang-php.s3.amazonaws.com/dist-beta/nginx-1.4.6.tar.gz',
-      'https://lang-php.s3.amazonaws.com/dist-beta/composer.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/composer.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/apcu.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/imagick.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/memcached.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/mongo.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/newrelic.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/opcache.tar.gz',
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/redis.tar.gz'
     ]
   end
 
