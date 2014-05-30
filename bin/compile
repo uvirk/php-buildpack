@@ -261,7 +261,6 @@ unset COMPOSER_GITHUB_OAUTH_TOKEN
 fi
 
 # install dependencies
-#composer install --no-dev --prefer-source --optimize-autoloader --no-interaction | indent
 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction | indent
 
 status "Building runtime environment..."
