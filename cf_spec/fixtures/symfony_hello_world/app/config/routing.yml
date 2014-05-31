@@ -1,6 +1,6 @@
 _welcome:
     pattern:  /
-    defaults: { _controller: AcmeDemoBundle:Demo:hello, name: PHP }
+    defaults: { _controller: BloggerBlogBundle:Default:index, name: PHP }
 
 blogger_blog:
     resource: "@BloggerBlogBundle/Controller/"
