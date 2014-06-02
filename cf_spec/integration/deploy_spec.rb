@@ -38,6 +38,14 @@ describe 'CF PHP Buildpack' do
             expect(app.homepage_html).to include('App with HHVM running')
           end
         end
+
+        it 'deploys a symfony app' do
+          Machete.deploy_app("symfony_hello_world") do |app|
+            expect(app).to be_staged
+
+            expect(app.homepage_html).to include('Running on Symfony!')
+          end
+        end
       end
     end
   end
@@ -63,6 +71,14 @@ describe 'CF PHP Buildpack' do
             expect(logs).to include('Detected request for HHVM 3.0.1')
             expect(logs).to include('- HHVM 3.0.1')
             expect(app.homepage_html).to include('App with HHVM running')
+          end
+        end
+
+        it 'deploys a symfony app' do
+          Machete.deploy_app("symfony_hello_world") do |app|
+            expect(app).to be_staged
+
+            expect(app.homepage_html).to include('Running on Symfony!')
           end
         end
       end
