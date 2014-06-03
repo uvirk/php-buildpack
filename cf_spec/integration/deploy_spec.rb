@@ -40,7 +40,7 @@ describe 'CF PHP Buildpack' do
         end
 
         it 'deploys a symfony app' do
-          Machete.deploy_app("symfony_hello_world") do |app|
+          Machete.deploy_app("symfony_hello_world_with_local_dependencies") do |app|
             expect(app).to be_staged
 
             expect(app.homepage_html).to include('Running on Symfony!')

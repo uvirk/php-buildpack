@@ -1,9 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "7fdeb8a94b3d19d128a9dcdd8cbb3856",
+    "hash": "b976a3c3ab9a7be614dbdc9f15cadfbb",
     "packages": [
         {
             "name": "monolog/monolog",
@@ -116,6 +117,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
-    "platform": [],
+    "platform": {
+        "ext-mongo": "*"
+    },
     "platform-dev": []
 }
