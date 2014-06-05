@@ -1,3 +1,3 @@
 source "https://rubygems.org"
 
-gem 'machete', git: 'https://github.com/pivotal-cf-experimental/cf-buildpack-integration-tests.git', ref: '64a3833cdb6dd894256c25407e0ca71d031b0218'
+gem 'machete', git: 'https://github.com/cf-buildpacks/machete.git', ref: '57b73e7031a8b29cf85b1afc44e4c28706966c78'
