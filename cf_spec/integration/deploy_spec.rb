@@ -15,8 +15,6 @@ describe 'CF PHP Buildpack' do
 
   context 'with cached buildpack dependencies' do
 
-    # context 'in an online environment'
-
     context 'in an offline environment', if: Machete::BuildpackMode.offline? do
 
       context 'an app with vendored app dependencies' do
