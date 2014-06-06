@@ -44,6 +44,12 @@ describe 'CF PHP Buildpack' do
             expect(app.homepage_html).to include('Running on Symfony!')
           end
         end
+
+        it 'deploys a wordpress app' do
+          Machete.deploy_app("composer_wordpress", with_pg: true, database_name: "wordpress") do |app|
+            expect(app).to be_staged
+          end
+        end
       end
     end
   end
@@ -77,6 +83,12 @@ describe 'CF PHP Buildpack' do
             expect(app).to be_staged
 
             expect(app.homepage_html).to include('Running on Symfony!')
+          end
+        end
+
+        it 'deploys a wordpress app' do
+          Machete.deploy_app("composer_wordpress", with_pg: true, database_name: "wordpress") do |app|
+            expect(app).to be_staged
           end
         end
       end
