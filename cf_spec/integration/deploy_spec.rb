@@ -22,6 +22,7 @@ describe 'CF PHP Buildpack' do
           Machete.deploy_app("app_with_local_dependencies") do |app|
             expect(app).to be_staged
             expect(app.homepage_html).to include('App with dependencies running')
+            expect(app).to have_no_internet_traffic
           end
         end
 
