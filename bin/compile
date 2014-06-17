@@ -227,7 +227,8 @@ else
     }
     export -f composer
 
-    if $(can_connect http://getcomposer.org); then
+    if [[ ! -d $buildpack_absolute/dependencies ]]
+    then
         composer self-update --no-interaction --quiet || true # TODO: specify a version once composer has stable releases
     fi
 fi
@@ -236,7 +237,8 @@ fi
 composer --version 2> /dev/null | tail -n 1 | indent
 
 
-if $(can_connect https://api.github.com); then
+if [[ ! -d $buildpack_absolute/dependencies ]]
+then
 # handle custom oauth keys
 COMPOSER_GITHUB_OAUTH_TOKEN=${COMPOSER_GITHUB_OAUTH_TOKEN:-}
 if [[ -n "$COMPOSER_GITHUB_OAUTH_TOKEN" ]]; then

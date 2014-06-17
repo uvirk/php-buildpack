@@ -19,16 +19,6 @@ install_python() {
     fi
 }
 
-can_connect() {
-    curl_exit_code=$(`which curl` --connect-timeout 5 $1 &> /dev/null; echo $?)
-    if [[ $curl_exit_code -eq 0 ]]
-    then
-        return 0
-    fi
-
-    return 1
-}
-
 if test -d $buildpack_absolute/dependencies
 then
     notice_inline 'Use locally cached dependencies where possible'
