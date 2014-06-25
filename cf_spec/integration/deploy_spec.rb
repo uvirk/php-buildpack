@@ -14,8 +14,8 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_html).to include('App with dependencies running')
-          expect(app).to have_no_internet_traffic
+          expect(app.homepage_body).to include('App with dependencies running')
+          expect(app.host).not_to have_internet_traffic
         end
       end
 
@@ -24,8 +24,8 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_html).to include('Simple app running')
-          expect(app).to have_no_internet_traffic
+          expect(app.homepage_body).to include('Simple app running')
+          expect(app.host).not_to have_internet_traffic
         end
       end
 
@@ -35,12 +35,11 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
 
-          logs = app.logs
+          expect(app).to have_logged('Detected request for HHVM 3.0.1')
+          expect(app).to have_logged('- HHVM 3.0.1')
 
-          expect(logs).to include('Detected request for HHVM 3.0.1')
-          expect(logs).to include('- HHVM 3.0.1')
-          expect(app.homepage_html).to include('App with HHVM running')
-          expect(app).to have_no_internet_traffic
+          expect(app.homepage_body).to include('App with HHVM running')
+          expect(app.host).not_to have_internet_traffic
         end
       end
 
@@ -50,8 +49,8 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
 
-          expect(app.homepage_html).to include('Running on Symfony!')
-          expect(app).to have_no_internet_traffic
+          expect(app.homepage_body).to include('Running on Symfony!')
+          expect(app.host).not_to have_internet_traffic
         end
       end
 
@@ -63,7 +62,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_no_internet_traffic
+          expect(app.host).not_to have_internet_traffic
         end
       end
     end
@@ -76,7 +75,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_html).to include('App with remote dependencies running')
+          expect(app.homepage_body).to include('App with remote dependencies running')
         end
       end
 
@@ -85,7 +84,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_html).to include('Simple app running')
+          expect(app.homepage_body).to include('Simple app running')
         end
       end
 
@@ -95,11 +94,9 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
 
-          logs = app.logs
-
-          expect(logs).to include('Detected request for HHVM 3.0.1')
-          expect(logs).to include('- HHVM 3.0.1')
-          expect(app.homepage_html).to include('App with HHVM running')
+          expect(app).to have_logged('Detected request for HHVM 3.0.1')
+          expect(app).to have_logged('- HHVM 3.0.1')
+          expect(app.homepage_body).to include('App with HHVM running')
         end
       end
 
@@ -108,7 +105,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_html).to include('Running on Symfony!')
+          expect(app.homepage_body).to include('Running on Symfony!')
         end
       end
 
