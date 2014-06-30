@@ -65,6 +65,16 @@ describe 'CF PHP Buildpack' do
           expect(app.host).not_to have_internet_traffic
         end
       end
+
+      context 'deploying a zend app' do
+        let(:app_name) { 'zend' }
+
+        specify do
+          expect(app).to be_running
+          expect(app.host).not_to have_internet_traffic
+          expect(app.homepage_body).to include('Zend Framework 2')
+        end
+      end
     end
   end
 
@@ -117,6 +127,15 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
+        end
+      end
+
+      context 'deploying a zend app' do
+        let(:app_name) { 'zend' }
+
+        specify do
+          expect(app).to be_running
+          expect(app.homepage_body).to include('Zend Framework 2')
         end
       end
     end
