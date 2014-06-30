@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export buildpack=$(dirname $(dirname $0))
-buildpack_absolute="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
+BUILDPACK_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/.. && pwd )"
 
 install_python() {
     cache=$(cd "$1/" && pwd)
@@ -19,17 +19,49 @@ install_python() {
     fi
 }
 
-if test -d $buildpack_absolute/dependencies
+if test -d $BUILDPACK_PATH/dependencies
 then
     notice_inline 'Use locally cached dependencies where possible'
 
-    curl() {
-        name=$(echo $@ | rev | cut -d/ -f1 | rev)
+    function curl() {
+        local write_file=''
 
-        if test -f $buildpack_absolute/dependencies/$name; then
-            cat $buildpack_absolute/dependencies/$name
+        ## Split the arguments from curl command into an array
+        IFS=' ' read -a curl_args <<< "$@"
+
+        ## Iterate over each arg until we find one that starts with http
+        local count=0
+        for arg in "${curl_args[@]}"
+        do
+            ## Does the argument start with http?
+            if [[ $arg == http* ]]
+            then
+                filename=$(sed 's/[:\/]/_/g' <<< ${arg})
+            fi
+
+            ## Does the argument have an output file?
+            if [[ $arg == '-o' ]]
+            then
+                write_file=${curl_args[count+1]}
+            fi
+
+            # Increment counter
+            let count+=1
+        done
+
+        if test -f $BUILDPACK_PATH/dependencies/$filename
+        then
+            ## Was a file to write to provided?
+            if [[ -n "$write_file" ]]
+            then
+                ## Write to file
+                cat $BUILDPACK_PATH/dependencies/$filename > $write_file
+            else
+                # Stream output
+                cat $BUILDPACK_PATH/dependencies/$filename
+            fi
         else
-            `which curl` $@
+            echo "Expected dependency to exist but could not find it: ${1}" 1>&2
         fi
     }
 fi

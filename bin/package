@@ -1,10 +1,39 @@
 #!/usr/bin/env bash
 
-if [ $# -eq 0 ] || ([ "$1" != "online" ] && [ "$1" != "offline" ]); then
-  echo "Usage:"
-  echo "  ./package [online|offline]"
-  exit 1
-fi
+language='php'
 
-bundle
-bundle exec ruby lib/buildpack_packager.rb "$1"
+dependencies=(
+  'https://lang-php.s3.amazonaws.com/dist-beta/php-5.5.11.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/php-5.5.12.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/php-5.5.13.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/hhvm-3.0.1.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/hhvm-3.1.0.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/apache-2.4.9.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/nginx-1.4.6.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/composer.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/apcu.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/imagick.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/memcached.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/mongo.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/newrelic.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/opcache.tar.gz'
+      'https://lang-php.s3.amazonaws.com/dist-beta/extensions/no-debug-non-zts-20121212/redis.tar.gz'
+)
+
+excluded_files=(
+  '.git/'
+  '.gitignore'
+  '.gitmodules'
+  'repos/'
+  'cf_spec/'
+  'log/'
+  'cf.Gemfile'
+  'cf.Gemfile.lock'
+  'bin/package'
+  'buildpack-packager/'
+)
+
+BIN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $BIN/../buildpack-packager/lib/packager
+
+package_buildpack $@
