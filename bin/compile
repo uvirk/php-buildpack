@@ -41,7 +41,12 @@ BP_DIR=$(cd $(dirname $0); cd ..; pwd)
 # convenience functions
 source $BP_DIR/bin/common.sh
 
-source $BP_DIR/bin/cf_common.sh
+# CF Common
+BUILDPACK_PATH=$BP_DIR
+export BUILDPACK_PATH
+source $BUILDPACK_PATH/compile-extensions/lib/common
+# END CF Common
+
 install_python $CACHE_DIR
 
 export_env_dir "$ENV_DIR" "" '^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LD_LIBRARY_PATH)$'
