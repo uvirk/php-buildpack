@@ -14,7 +14,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('App with dependencies running')
+          expect(app).to have_page_body 'App with dependencies running'
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -24,7 +24,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('Simple app running')
+          expect(app).to have_page_body 'Simple app running'
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -38,7 +38,7 @@ describe 'CF PHP Buildpack' do
           expect(app).to have_logged('Detected request for HHVM 3.0.1')
           expect(app).to have_logged('- HHVM 3.0.1')
 
-          expect(app.homepage_body).to include('App with HHVM running')
+          expect(app).to have_page_body 'App with HHVM running'
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -49,7 +49,7 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
 
-          expect(app.homepage_body).to include('Running on Symfony!')
+          expect(app).to have_page_body 'Running on Symfony!'
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -57,7 +57,7 @@ describe 'CF PHP Buildpack' do
       context 'deploying a wordpress app' do
         let(:app_name) { 'composer_wordpress' }
         let(:options) do
-          { with_pg: true, database_name: 'wordpress' }
+          {with_pg: true, database_name: 'wordpress'}
         end
 
         specify do
@@ -72,7 +72,25 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
           expect(app.host).not_to have_internet_traffic
-          expect(app.homepage_body).to include('Zend Framework 2')
+          expect(app).to have_page_body 'Zend Framework 2'
+        end
+      end
+
+      context 'deploying a cake app' do
+        let(:app_name) { 'cake_with_local_dependencies' }
+        let(:options) do
+          {
+            with_pg: true,
+            start_command: 'app/Console/cake schema create -y && vendor/bin/heroku-php-apache2'
+          }
+        end
+
+        specify do
+          expect(app).to be_running
+          expect(app.host).not_to have_internet_traffic
+
+          expect(app).to have_page_body 'CakePHP'
+          expect(app).not_to have_page_body 'Missing Database Table'
         end
       end
     end
@@ -85,7 +103,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('App with remote dependencies running')
+          expect(app).to have_page_body 'App with remote dependencies running'
         end
       end
 
@@ -94,7 +112,7 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('Simple app running')
+          expect(app).to have_page_body 'Simple app running'
         end
       end
 
@@ -106,7 +124,7 @@ describe 'CF PHP Buildpack' do
 
           expect(app).to have_logged('Detected request for HHVM 3.0.1')
           expect(app).to have_logged('- HHVM 3.0.1')
-          expect(app.homepage_body).to include('App with HHVM running')
+          expect(app).to have_page_body 'App with HHVM running'
         end
       end
 
@@ -115,14 +133,14 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('Running on Symfony!')
+          expect(app).to have_page_body 'Running on Symfony!'
         end
       end
 
       context 'deploying a wordpress app' do
         let(:app_name) { 'composer_wordpress' }
         let(:options) do
-          { with_pg: true, database_name: 'wordpress' }
+          {with_pg: true, database_name: 'wordpress'}
         end
 
         specify do
@@ -135,7 +153,23 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.homepage_body).to include('Zend Framework 2')
+          expect(app).to have_page_body 'Zend Framework 2'
+        end
+      end
+
+      context 'deploying a cake app' do
+        let(:app_name) { 'cake' }
+        let(:options) do
+          {
+            with_pg: true,
+            start_command: 'app/Console/cake schema create -y && vendor/bin/heroku-php-apache2'
+          }
+        end
+
+        specify do
+          expect(app).to be_running
+          expect(app).to have_page_body 'CakePHP'
+          expect(app).not_to have_page_body 'Missing Database Table'
         end
       end
     end
