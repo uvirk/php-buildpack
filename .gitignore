@@ -2,4 +2,4 @@
 /composer.lock
 *_buildpack.zip
 vendor
-log
+/log/
