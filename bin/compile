@@ -47,7 +47,8 @@ export BUILDPACK_PATH
 source $BUILDPACK_PATH/compile-extensions/lib/common
 # END CF Common
 
-install_python $CACHE_DIR
+export PYTHONHOME=$BUILDPACK_PATH/builds/runtimes/python-2.7.6
+export PATH=$PYTHONHOME/bin:$PATH
 
 export_env_dir "$ENV_DIR" "" '^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|LD_LIBRARY_PATH)$'
 
