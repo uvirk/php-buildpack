@@ -6,10 +6,13 @@ It uses Composer for dependency management, supports PHP or HHVM (experimental) 
 
 ## Usage
 
-You'll need to use at least an empty `composer.json` in your application.
+You'll need to use either a completely empty file:
 
-    heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-php
-    echo '{}' > composer.json
+    touch composer.json
+
+Or disable the default Packagist repository:
+
+    echo '{"repositories":[{"packagist":false}]}' > composer.json
     git add .
     git commit -am "add composer.json for PHP app detection"
 
