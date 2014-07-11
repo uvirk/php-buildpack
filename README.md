@@ -4,6 +4,7 @@ A Cloud Foundry [buildpack](http://docs.cloudfoundry.org/buildpacks/) for PHP ba
 
 This is based on the [Heroku buildpack](https://github.com/heroku/heroku-buildpack-php).
 
+Additional documentation can be found at [CloudFoundry.org](http://docs.cloudfoundry.org/buildpacks/).
 ## Usage
 
 This buildpack will be used if there is a `composer.json` or `index.php` file in the root directory of your project.
