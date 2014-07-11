@@ -1,66 +1,101 @@
 # Heroku buildpack: PHP
 
-This is a [Heroku buildpack](http://devcenter.heroku.com/articles/buildpacks) for PHP applications.
+A Cloud Foundry [buildpack](http://docs.cloudfoundry.org/buildpacks/) for PHP based apps.
 
-It uses Composer for dependency management, supports PHP or HHVM (experimental) as runtimes, and offers a choice of Apache2 or Nginx web servers.
+This is based on the [Heroku buildpack](https://github.com/heroku/heroku-buildpack-php).
 
 ## Usage
 
-You'll need to use either a completely empty file:
+This buildpack will be used if there is a `composer.json` or `index.php` file in the root directory of your project.
 
-    touch composer.json
-
-Or disable the default Packagist repository:
-
-    echo '{"repositories":[{"packagist":false}]}' > composer.json
-    git add .
-    git commit -am "add composer.json for PHP app detection"
-
-
-Please refer to [Dev Center](https://devcenter.heroku.com/categories/php) for further usage instructions.
-
-## Development
-
-### Compiling Binaries
-
-The folder `support/build` contains [Bob](http://github.com/kennethreitz/bob-builder) build scripts for all binaries and dependencies.
-
-To get started with it, create an app on Heroku inside a clone of this repository, and set your S3 config vars:
-
-```term
-$ heroku create --buildpack https://github.com/heroku/heroku-buildpack-python#not-heroku
-$ heroku ps:scale web=0
-$ heroku config:set WORKSPACE_DIR=/app/support/build
-$ heroku config:set AWS_ACCESS_KEY_ID=<your_aws_key>
-$ heroku config:set AWS_SECRET_ACCESS_KEY=<your_aws_secret>
-$ heroku config:set S3_BUCKET=<your_s3_bucket_name>
-$ heroku config:set S3_PREFIX=<optional_s3_subfolder_to_upload_to>
+```bash
+cf push my_app -b https://github.com/cloudfoundry/cf-buildpack-php.git
 ```
 
-Then, shell into an instance and run a build by giving the name of the formula inside `support/build`:
+## Cloud Foundry Extensions - Offline Mode
 
-```term
-$ heroku run bash
-Running `bash` attached to terminal... up, run.6880
-~ $ bob build php-5.5.11RC1
+The primary purpose of extending the heroku buildpack is to cache system dependencies for firewalled or other non-internet accessible environments. This is called 'offline' mode.
 
-Fetching dependencies... found 2:
-  - libraries/zlib
-  - libraries/libmemcached
-Building formula php-5.5.11RC1:
-    === Building PHP
-    Fetching PHP v5.5.11RC1 source...
-    Compiling PHP v5.5.11RC1...
+'offline' buildpacks can be used in any environment where you would prefer the dependencies to be cached instead of fetched from the internet.
+
+The list of what is cached is maintained in [bin/package](bin/package).
+
+Using cached system dependencies is accomplished by overriding curl during staging. See [bin/compile](bin/compile#L44-48)
+
+### App Dependencies in Offline Mode
+Offline mode expects each app to use composer to manage dependencies. Use `composer install` to vendor your dependencies into `/vendor`.
+
+#### No Dependencies
+
+There are three supported behaviors if the app has no dependencies:
+
+1. If index.php exists, the app does not need a composer.json file.
+
+1. The app can have an empty composer.json file:
+
+    `touch composer.json`
+
+1. The app can explicitly disable the default Packagist repository:
+
+    `echo '{"repositories":[{"packagist":false}]}' > composer.json`
+
+## Building
+1. Make sure you have fetched submodules
+
+  ```bash
+  git submodule update --init
+  ```
+
+1. Build the buildpack
+
+  ```bash
+  bin/package [ online | offline ]
+  ```
+
+1. Use in Cloud Foundry
+
+    Upload the buildpack to your Cloud Foundry and optionally specify it by name
+
+    ```bash
+    cf create-buildpack custom_php_buildpack php_buildpack-offline-custom.zip 1
+    cf push my_app -b custom_php_buildpack
+    ```
+
+## Contributing
+
+### Run the tests
+
+There are [Machete](https://github.com/pivotal-cf-experimental/machete) based integration tests available in [cf_spec](cf_spec).
+
+The test script is included in machete and can be run as follows:
+
+```bash
+BUNDLE_GEMFILE=cf.Gemfile bundle install
+git submodule update --init
+`BUNDLE_GEMFILE=cf.Gemfile bundle show machete`/scripts/buildpack-build [mode]
 ```
 
-If this works, run `bob deploy` instead of `bob build` to have the result uploaded to S3 for you.
+`buildpack-build` will create a buildpack in one of two modes and upload it to your local bosh-lite based Cloud Foundry installations.
 
-To speed things up drastically, it'll usually be a good idea to `heroku run bash --size PX` instead.
+Valid modes:
 
-If the dependencies are not yet deployed, you can do so by e.g. running `bob deploy libraries/zlib`.
+online : Dependencies can be fetched from the internet.
 
-### Hacking
+offline : System dependencies, such as python, are installed from a cache included in the buildpack.
 
-To work on this buildpack, fork it on Github. You can then use [Anvil with a local buildpack](https://github.com/heroku/anvil-cli#iterate-on-buildpacks-without-pushing-to-github) to easily iterate on changes without pushing each time.
+The tests expect two Cloud Foundry installations to be present, an online one at 10.244.0.34 and an offline one at 10.245.0.34.
 
-Alternatively, you may push changes to your fork (ideally in a branch if you'd like to submit pull requests), then create a test app with `heroku create --buildpack <your-github-url#branch>` and push to it.
+We use [bosh-lite](https://github.com/cloudfoundry/bosh-lite) for the online instance and [bosh-lite-2nd-instance](https://github.com/cf-buildpacks/bosh-lite-2nd-instance) for the offline instance.
+
+### Pull Requests
+
+1. Fork the project
+1. Submit a pull request
+
+## Reporting Issues
+
+Open an issue on this project
+
+## Active Development
+
+The project backlog is on [Pivotal Tracker](https://www.pivotaltracker.com/projects/1042066)
