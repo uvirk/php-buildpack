@@ -336,5 +336,7 @@ if [[ ! -f "Procfile" ]]; then
     notice_inline "No Procfile, defaulting to 'web: $bindir/heroku-$engine-apache2'"
 fi
 
+# Remove Python and cached system dependencies from staging directory
+# This prevents them from ending up in the app's droplet and increasing its size
 rm -rf "$BUILD_DIR/$hbpdir/builds/runtimes/python-2.7.6"
 rm -rf "$BUILD_DIR/$hbpdir/dependencies"
