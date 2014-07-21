@@ -1,0 +1,6 @@
+v1.0.0 Jun 25, 2014
+===================
+
+* Introduce Heroku PHP buildpack
+* Add support for offline packaging
+* Add testing framework (machete)
