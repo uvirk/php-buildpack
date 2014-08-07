@@ -3,6 +3,7 @@ require 'spec_helper'
 
 describe 'CF PHP Buildpack' do
   subject(:app) { Machete.deploy_app(app_name, options) }
+  let(:browser) { Machete::Browser.new(app)}
   let(:options) do
     {}
   end
@@ -14,7 +15,10 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'App with dependencies running'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'App with dependencies running'
+
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -24,7 +28,10 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'Simple app running'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'Simple app running'
+
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -38,7 +45,9 @@ describe 'CF PHP Buildpack' do
           expect(app).to have_logged('Detected request for HHVM 3.0.1')
           expect(app).to have_logged('- HHVM 3.0.1')
 
-          expect(app).to have_page_body 'App with HHVM running'
+          browser.visit_path("/")
+          expect(browser).to have_body 'App with HHVM running'
+
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -49,7 +58,9 @@ describe 'CF PHP Buildpack' do
         specify do
           expect(app).to be_running
 
-          expect(app).to have_page_body 'Running on Symfony!'
+          browser.visit_path("/")
+          expect(browser).to have_body 'Running on Symfony!'
+
           expect(app.host).not_to have_internet_traffic
         end
       end
@@ -71,8 +82,11 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'Zend Framework 2'
+
           expect(app.host).not_to have_internet_traffic
-          expect(app).to have_page_body 'Zend Framework 2'
         end
       end
 
@@ -87,10 +101,13 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app.host).not_to have_internet_traffic
 
-          expect(app).to have_page_body 'CakePHP'
-          expect(app).not_to have_page_body 'Missing Database Table'
+          browser.visit_path("/")
+          expect(browser).to have_body 'CakePHP'
+          expect(browser).not_to have_body 'Missing Database Table'
+
+
+          expect(app.host).not_to have_internet_traffic
         end
       end
     end
@@ -103,7 +120,9 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'App with remote dependencies running'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'App with remote dependencies running'
         end
       end
 
@@ -112,7 +131,9 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'Simple app running'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'Simple app running'
         end
       end
 
@@ -124,7 +145,9 @@ describe 'CF PHP Buildpack' do
 
           expect(app).to have_logged('Detected request for HHVM 3.0.1')
           expect(app).to have_logged('- HHVM 3.0.1')
-          expect(app).to have_page_body 'App with HHVM running'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'App with HHVM running'
         end
       end
 
@@ -133,7 +156,9 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'Running on Symfony!'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'Running on Symfony!'
         end
       end
 
@@ -153,7 +178,9 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'Zend Framework 2'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'Zend Framework 2'
         end
       end
 
@@ -168,8 +195,10 @@ describe 'CF PHP Buildpack' do
 
         specify do
           expect(app).to be_running
-          expect(app).to have_page_body 'CakePHP'
-          expect(app).not_to have_page_body 'Missing Database Table'
+
+          browser.visit_path("/")
+          expect(browser).to have_body 'CakePHP'
+          expect(browser).not_to have_body 'Missing Database Table'
         end
       end
     end

@@ -1,5 +1,7 @@
-PATH
-  remote: /Users/pivotal/workspace/machete
+GIT
+  remote: git://github.com/cf-buildpacks/machete.git
+  revision: 170c3a5c7d1012d5f7d8fd455ef3480e7e4601a5
+  branch: master
   specs:
     machete (0.0.1)
       httparty
