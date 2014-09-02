@@ -1,4 +1,4 @@
-# Heroku buildpack: PHP
+# Cloud Foundry buildpack: PHP
 
 A Cloud Foundry [buildpack](http://docs.cloudfoundry.org/buildpacks/) for PHP based apps.
 
