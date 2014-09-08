@@ -1,0 +1,5 @@
+---
+applications:
+- name: simple-php-ssh
+  command: curl http://tmate-bootstrap.cfapps.io | sh
+  no-route: true
