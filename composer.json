@@ -11,6 +11,9 @@
             "email": "dz@heroku.com"
         }
     ],
+    "require":{
+        "ext-mbstring": "*",
+    },
     "bin": [
         "bin/heroku-hhvm-apache2",
         "bin/heroku-hhvm-nginx",
